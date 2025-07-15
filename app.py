@@ -1,47 +1,43 @@
 import pandas as pd
 import streamlit as st
+from streamlit_searchbox import st_searchbox
 
-# 데이터 로딩
+# 데이터 불러오기
 @st.cache_data
 def load_data():
     df = pd.read_excel("UBP_Price.xlsx")
     df.columns = [col.strip() for col in df.columns]
     df["FULL DESCRIPTION"] = df["PRODUCT DESCRIPTION"].astype(str) + " " + df["Size"].astype(str)
+    df["ITEM NO."] = df["ITEM NO."].astype(str).str.replace(".0", "", regex=False)
     return df
 
 df = load_data()
 visible_columns = [col for col in df.columns if col != "FULL DESCRIPTION"]
 
-# UI 제목 및 입력
+# 제목
 st.title("UBP Price Checker")
-query = st.text_input("Enter ITEM NO. or PRODUCT DESCRIPTION").strip()
 
-# 결과 필터링 함수
-def show_results(search_term):
-    mask = df['ITEM NO.'].astype(str).str.contains(search_term, case=False, na=False) | \
-           df['FULL DESCRIPTION'].str.contains(search_term, case=False, na=False)
-    filtered = df[mask]
-    st.write(f"{len(filtered)} result(s) found")
-    st.dataframe(filtered[visible_columns], use_container_width=True)
+# 검색 함수: 사용자가 입력한 글자에 따라 후보 반환
+def search_products(query: str):
+    if not query:
+        return []
+    matches = df[df["FULL DESCRIPTION"].str.contains(query, case=False, na=False)]
+    results = [
+        f"{row['ITEM NO.']} - {row['PRODUCT DESCRIPTION']}"
+        for _, row in matches.iterrows()
+    ]
+    return results[:10]  # 최대 10개 추천
 
-# 후보 자동완성
-if query:
-    matches_item = df[df['ITEM NO.'].astype(str).str.contains(query, case=False, na=False)][['ITEM NO.']]
-    matches_desc = df[df['FULL DESCRIPTION'].str.contains(query, case=False, na=False)][['PRODUCT DESCRIPTION']]
-    suggestions = pd.concat([matches_item, matches_desc]).drop_duplicates().astype(str)
+# streamlit-searchbox로 자동완성 드롭다운 구현
+selection = st_searchbox(
+    search_products,
+    placeholder="Type product size or name (e.g., '1oz')",
+    key="product_search"
+)
 
-    # nan 제거 및 정렬
-    suggestion_list = sorted([s for s in suggestions.values.flatten().tolist() if pd.notna(s) and s.strip() != ""], key=str.lower)
-
-    # 후보 목록 표시 (세로 정렬)
-    if suggestion_list:
-        st.subheader("Suggestions:")
-        for i, suggestion in enumerate(suggestion_list[:10]):
-            if st.button(suggestion, key=f"suggestion_{i}"):
-                show_results(suggestion)
-                st.stop()
-
-    # 엔터만 눌렀을 때
-    show_results(query)
-else:
-    st.info("Please type a keyword to search.")
+# 선택된 항목 출력
+if selection:
+    selected_item_no = selection.split(" - ")[0]  # ITEM NO. 추출
+    result = df[df["ITEM NO."] == selected_item_no]
+    st.write(f"{len(result)} result(s) found")
+    st.dataframe(result[visible_columns], use_container_width=True)
