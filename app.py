@@ -66,7 +66,7 @@ if selection:
     display_df = result[visible_columns].reset_index(drop=True)
     display_df.index = [""] * len(display_df)
 
-    st.dataframe(display_df, use_container_width=True)
+    st.table(result[visible_columns])
 
     # 커서 유지 위해 rerun 제거
     st.session_state.selection = None
