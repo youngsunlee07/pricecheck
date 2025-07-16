@@ -42,7 +42,7 @@ def search_products(query: str):
         f"{row['ITEM NO.']} - {row['PRODUCT DESCRIPTION']}"
         for _, row in filtered.iterrows()
     ]
-    return results[:10]
+    return results
 
 # --- 세션 상태 초기화 ---
 if "selection" not in st.session_state:
