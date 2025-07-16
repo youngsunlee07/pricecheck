@@ -64,9 +64,7 @@ if selection:
 
     # 인덱스를 빈 문자열로 설정해 제거
     display_df = result[visible_columns].reset_index(drop=True)
-    display_df.index = [""] * len(display_df)
-
-    st.table(result[visible_columns])
+    st.table(display_df)
 
     # 커서 유지 위해 rerun 제거
     st.session_state.selection = None
