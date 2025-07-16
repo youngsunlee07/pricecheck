@@ -23,30 +23,22 @@ visible_columns = [col for col in preferred_columns if col in df.columns]
 # --- 타이틀 ---
 st.title("UBP Price Checker")
 
-# --- 검색 함수 (ITEM NO. + PRODUCT DESCRIPTION + PRODUCT CODE) ---
+# --- 검색 함수 ---
 def search_products(query: str):
     if not query:
         return []
-
     terms = query.lower().split()
     filtered = df.copy()
-
     for term in terms:
         filtered = filtered[
             filtered["PRODUCT DESCRIPTION"].str.lower().str.contains(term, na=False) |
             filtered["ITEM NO."].str.lower().str.contains(term, na=False) |
             filtered["PRODUCT CODE"].str.lower().str.contains(term, na=False)
         ]
-
-    results = [
+    return [
         f"{row['ITEM NO.']} - {row['PRODUCT DESCRIPTION']}"
         for _, row in filtered.iterrows()
     ]
-    return results
-
-# --- 세션 상태 초기화 ---
-if "selection" not in st.session_state:
-    st.session_state.selection = None
 
 # --- 검색창 ---
 selection = st_searchbox(
@@ -62,11 +54,7 @@ if selection:
     result = df[df["ITEM NO."] == selected_item_no]
     st.write(f"{len(result)} result(s) found")
 
-    # 인덱스를 빈 문자열로 설정해 제거
     display_df = result[visible_columns].reset_index(drop=True)
     display_df.index = [""] * len(display_df)
-
     st.dataframe(display_df, use_container_width=True)
 
-    # 커서 유지 위해 rerun 제거
-    st.session_state.selection = None
