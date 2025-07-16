@@ -62,8 +62,11 @@ if selection:
     result = df[df["ITEM NO."] == selected_item_no]
     st.write(f"{len(result)} result(s) found")
 
-    # 인덱스 제거
-    st.dataframe(result[visible_columns].reset_index(drop=True), use_container_width=True)
+    # 인덱스를 빈 문자열로 설정해 제거
+    display_df = result[visible_columns].reset_index(drop=True)
+    display_df.index = [""] * len(display_df)
 
-    # rerun 제거 → 커서 유지
+    st.dataframe(display_df, use_container_width=True)
+
+    # 커서 유지 위해 rerun 제거
     st.session_state.selection = None
