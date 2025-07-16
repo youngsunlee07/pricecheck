@@ -12,10 +12,13 @@ def load_data():
     return df
 
 df = load_data()
-visible_columns = [
+
+# --- 출력할 컬럼 지정 (존재하는 컬럼만 필터링) ---
+preferred_columns = [
     "ITEM NO.", "PRODUCT DESCRIPTION", "PRODUCT CODE", "INNER CS",
-    "MASTER CS", "WS UNIT PRICE", "WS CASE PRICE", "RT UNIT PRICE", "RT CASE PRICE"
+    "MASTER CS", "WS UNIT PRICE", "WS CASE PRICE", "RT UNIT PRICE"
 ]
+visible_columns = [col for col in preferred_columns if col in df.columns]
 
 # --- 타이틀 ---
 st.title("UBP Price Checker")
