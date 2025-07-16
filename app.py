@@ -61,7 +61,9 @@ if selection:
     selected_item_no = selection.split(" - ")[0]
     result = df[df["ITEM NO."] == selected_item_no]
     st.write(f"{len(result)} result(s) found")
-    st.dataframe(result[visible_columns], use_container_width=True)
 
+    # 인덱스 제거
+    st.dataframe(result[visible_columns].reset_index(drop=True), use_container_width=True)
+
+    # rerun 제거 → 커서 유지
     st.session_state.selection = None
-    st.rerun()
