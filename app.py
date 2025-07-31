@@ -7,7 +7,7 @@ from streamlit_searchbox import st_searchbox
 def load_data():
     df = pd.read_excel("UBP_Price.xlsx")
     df.columns = [col.strip() for col in df.columns]
-    df["ITEM NO."] = df["ITEM NO."].astype(str).str.replace(".0", "", regex=False)
+    df["ITEM NO."] = df["ITEM NO."].astype(str)
     df["PRODUCT CODE"] = df["PRODUCT CODE"].astype(str)
     return df
 
