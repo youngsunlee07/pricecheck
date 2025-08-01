@@ -5,7 +5,7 @@ from streamlit_searchbox import st_searchbox
 # --- 데이터 로딩 ---
 @st.cache_data
 def load_data():
-    df = pd.read_excel("UBP_Price.xlsx")
+    df = pd.read_excel("UBP_Price.xlsx", dtype={"ITEM NO.": str, "PRODUCT CODE": str})
     df.columns = [col.strip() for col in df.columns]
     df["ITEM NO."] = df["ITEM NO."].astype(str)
     df["PRODUCT CODE"] = df["PRODUCT CODE"].astype(str)
