@@ -9,6 +9,7 @@ def load_data():
     df.columns = [col.strip() for col in df.columns]
     df["ITEM NO."] = df["ITEM NO."].str.strip()
     df["PRODUCT DESCRIPTION"] = df["PRODUCT DESCRIPTION"].str.strip()
+    df["PRODUCT CODE"] = df["PRODUCT CODE"].str.strip()
     return df
 
 df = load_data()
@@ -19,6 +20,9 @@ preferred_columns = [
     "MASTER CS", "WS UNIT PRICE", "WS CASE PRICE", "RT UNIT PRICE"
 ]
 visible_columns = [col for col in preferred_columns if col in df.columns]
+
+# --- 타이틀 ---
+st.title("UBP Price Checker")
 
 # --- 검색 함수 ---
 def search_products(query: str):
@@ -50,6 +54,8 @@ if selection:
     selected_item_no = selection.split(" - ")[0].strip()
     result = df[df["ITEM NO."] == selected_item_no]
     st.write(f"{len(result)} result(s) found")
+
     display_df = result[visible_columns].reset_index(drop=True)
     display_df.index = [""] * len(display_df)
     st.dataframe(display_df, use_container_width=True)
+
