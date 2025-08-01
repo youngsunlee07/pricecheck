@@ -36,7 +36,7 @@ def search_products(query: str):
             filtered["PRODUCT CODE"].str.lower().str.contains(term, na=False)
         ]
     return [
-        f"{row['ITEM NO.']} - {row['PRODUCT DESCRIPTION']}"
+        {"label": f"{row['ITEM NO.']} - {row['PRODUCT DESCRIPTION']}", "value": row['ITEM NO.']}
         for _, row in filtered.iterrows()
     ]
 
@@ -50,8 +50,7 @@ selection = st_searchbox(
 
 # --- 결과 출력 ---
 if selection:
-    selected_item_no = selection.split(" - ")[0]
-    result = df[df["ITEM NO."] == selected_item_no]
+    result = df[df["ITEM NO."] == selection]  # selection은 ITEM NO.의 정확한 문자열
     st.write(f"{len(result)} result(s) found")
 
     display_df = result[visible_columns].reset_index(drop=True)
