@@ -7,8 +7,8 @@ from streamlit_searchbox import st_searchbox
 def load_data():
     df = pd.read_excel("UBP_Price.xlsx", dtype={"ITEM NO.": str, "PRODUCT CODE": str})
     df.columns = [col.strip() for col in df.columns]
-    df["ITEM NO."] = df["ITEM NO."].astype(str).str.zfill(5)  # ✅ 항상 5자리로 맞춤
-    df["PRODUCT CODE"] = df["PRODUCT CODE"].astype(str)
+    df["ITEM NO."] = df["ITEM NO."].astype(str).str.strip()  # ✅ zfill 제거하고 공백만 제거
+    df["PRODUCT CODE"] = df["PRODUCT CODE"].astype(str).str.strip()
     return df
 
 df = load_data()
@@ -35,7 +35,6 @@ def search_products(query: str):
             filtered["ITEM NO."].str.lower().str.contains(term, na=False) |
             filtered["PRODUCT CODE"].str.lower().str.contains(term, na=False)
         ]
-    # ✅ 문자열 리스트만 반환 (딕셔너리 NO)
     return [
         f"{row['ITEM NO.']} - {row['PRODUCT DESCRIPTION']}"
         for _, row in filtered.iterrows()
@@ -51,7 +50,7 @@ selection = st_searchbox(
 
 # --- 결과 출력 ---
 if selection:
-    selected_item_no = selection.split(" - ")[0].strip()  # ✅ 앞부분만 ITEM NO.
+    selected_item_no = selection.split(" - ")[0].strip()
     result = df[df["ITEM NO."] == selected_item_no]
 
     st.write(f"{len(result)} result(s) found")
