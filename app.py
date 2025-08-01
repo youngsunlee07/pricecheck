@@ -7,7 +7,7 @@ from streamlit_searchbox import st_searchbox
 def load_data():
     df = pd.read_excel("UBP_Price.xlsx", dtype={"ITEM NO.": str, "PRODUCT CODE": str})
     df.columns = [col.strip() for col in df.columns]
-    df["ITEM NO."] = df["ITEM NO."].astype(str)
+    df["ITEM NO."] = df["ITEM NO."].astype(str).str.zfill(5)  # ✅ 항상 5자리로 맞춤
     df["PRODUCT CODE"] = df["PRODUCT CODE"].astype(str)
     return df
 
@@ -35,9 +35,9 @@ def search_products(query: str):
             filtered["ITEM NO."].str.lower().str.contains(term, na=False) |
             filtered["PRODUCT CODE"].str.lower().str.contains(term, na=False)
         ]
-    # label과 value를 분리하여 dict로 리턴
+    # ✅ 문자열 리스트만 반환 (딕셔너리 NO)
     return [
-        {"label": f"{row['ITEM NO.']} - {row['PRODUCT DESCRIPTION']}", "value": row['ITEM NO.']}
+        f"{row['ITEM NO.']} - {row['PRODUCT DESCRIPTION']}"
         for _, row in filtered.iterrows()
     ]
 
@@ -51,7 +51,7 @@ selection = st_searchbox(
 
 # --- 결과 출력 ---
 if selection:
-    selected_item_no = selection["value"]  # ✅ dict에서 value 추출
+    selected_item_no = selection.split(" - ")[0].strip()  # ✅ 앞부분만 ITEM NO.
     result = df[df["ITEM NO."] == selected_item_no]
 
     st.write(f"{len(result)} result(s) found")
@@ -60,5 +60,4 @@ if selection:
     display_df.index = [""] * len(display_df)
     st.dataframe(display_df, use_container_width=True)
 
-    # 선택 초기화 (선택사항)
     st.session_state.selection = None
